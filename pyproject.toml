@@ -1,0 +1,54 @@
+# SPDX-FileCopyrightText: 2026 Duncan McDougall <duncan.mcdougall@rfi.ac.uk>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+[project]
+name = "imzml-reader"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Duncan McDougall", email = "duncan.mcdougall@rfi.ac.uk" }
+]
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "ms-nexus-tools",
+    "argsui",
+    "pyimzml",
+    "numpy>=2.4.6",
+    "tqdm>=4.70.0",
+    "line-profiler>=5.0.2",
+]
+
+license = "Apache-2.0"
+license-files = ["LICENSES/*"]
+
+[dependency-groups]
+dev = [ ]
+
+
+[project.scripts]
+main = "imzml_reader:main"
+
+[build-system]
+requires = ["uv_build>=0.10.0,<0.11.0"]
+build-backend = "uv_build"
+
+[tool.uv.sources]
+ms-nexus-tools = { path = "../ms-nexus-tools", editable = true }
+argsui = { path = "../argsui", editable = true }
+pyimzml = { path = "../pyimzML", editable = true }
+
+[tool.line_profiler.kernprof]
+line-by-line = true
+verbose = false
+skip-zero = true
+prof-mod = ['./src/imzml_reader/', 'imzml_reader', '../ms-nexus-tools/src/ms_nexus_tools/', 'ms_nexus_tools']
+prof-imports = false
+
+[tool.ruff.lint]
+select=['E1', 'E4','E7','E9','F','N','ERA', 'ANN2', 'S', 'BLE', 'B', 'A', 'C4', 'COM', 'ISC', 'ICN', 'LOG', 'PIE','RET', 'SLF','SIM', 'TD', 'ARG', 'PTH', 'FLY', 'NPY', 'PERF', "D2", "TRY", "PT"]
+ignore=["C408", "S311", "PTH123", "NPY002", "D203", "D205", "D212", "B006", "ARG001", "ARG002", "D200", "ANN204", "S101", "TRY003", 'RET504', 'COM812']
+
+[tool.ruff.lint.per-file-ignores]
+"src/thermo_reader/load_thermo.py" = ["E402", "N802"]
