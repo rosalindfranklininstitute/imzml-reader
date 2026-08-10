@@ -1,13 +1,8 @@
 # SPDX-FileCopyrightText: 2026 Duncan McDougall <duncan.mcdougall@rfi.ac.uk>
 #
 # SPDX-License-Identifier: Apache-2.0
-import itertools
 
-from contextlib import AbstractContextManager
-from typing import Any, Callable, NamedTuple
-from abc import abstractmethod
-from dataclasses import dataclass
-from enum import Enum
+from typing import Any, Callable
 
 import numpy as np
 import numpy.typing as npt
@@ -46,9 +41,6 @@ class ImzMLDataSource(AbstractDataSource):
         shape.append(np.max(self.parser.mzLengths))
         self.total_shape = tuple(shape)
         self.density = self.coords.shape[0] / np.prod(shape)
-
-        ic(self.parser.imzmldict)
-        # ic(self.parser.metadata.pretty())
 
         self.is_centroid = self.parser.spectrum_mode == "centroid"
 
@@ -159,7 +151,7 @@ class ImzMLDataSource(AbstractDataSource):
             return np.arange(self.min_coords[inx], self.max_coords[inx] + 1) * mult
         if axis.name == "mz":
             # I am not sure what to do here! (plagues and curses, the reader does not provide this information!)
-            # TODO: (dmd): Improve pyImzML to provide some data for this.
+            # TODO (dmd): Improve pyImzML to provide some data for this.
             # https://github.com/rosalindfranklininstitute/imzml-reader/issues/1
             return np.arange(0, self.total_shape[-1])
         raise UnknownAxisError(f"Axis {axis.name} is not a know axis.")
@@ -171,7 +163,7 @@ class ImzMLDataSource(AbstractDataSource):
         """
         if axis.name == "mz":
             # I am not sure what to do here! (plagues and curses, the reader does not provide this information!)
-            # TODO: (dmd): Improve pyImzML to provide some data for this.
+            # TODO (dmd): Improve pyImzML to provide some data for this.
             # https://github.com/rosalindfranklininstitute/imzml-reader/issues/1
             return np.arange(0, self.total_shape[-1])
         raise UnknownAxisError(f"Axis {axis.name} is not a know axis.")
@@ -212,7 +204,6 @@ class ImzMLDataSource(AbstractDataSource):
         -> return_data.shape == self.shape()
 
         """
-
         coord_mask = (self.coords[:, 0] >= memory_chunk[0].start) and (
             self.coords[:, 0] <= memory_chunk[0].stop
         )
