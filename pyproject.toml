@@ -10,13 +10,15 @@ readme = "README.md"
 authors = [
     { name = "Duncan McDougall", email = "duncan.mcdougall@rfi.ac.uk" }
 ]
-requires-python = ">=3.12,<3.14"
+requires-python = ">=3.13,<3.14"
 dependencies = [
-    "ms-nexus-tools",
+    "xartus",
     "argsui",
     "pyimzml",
     "numpy>=2.4.6",
     "tqdm>=4.70.0",
+    "icecream>=2.2.0",
+    "fastdigest>=0.12.0",
 ]
 
 license = "Apache-2.0"
@@ -30,9 +32,8 @@ dev = [
  "pytest-cov>=7.0.0",
  "nexus_pixel_man_test_data"
 ]
+
 [tool.uv.sources]
-ms-nexus-tools = { path = "../ms-nexus-tools", editable = true }
-argsui = { path = "../argsui", editable = true }
 pyimzml = { path = "../pyimzML", editable = true }
 nexus_pixel_man_test_data = { path = "../nexus_pixel_man_test_data/", editable = true }
 
@@ -48,7 +49,7 @@ build-backend = "uv_build"
 line-by-line = true
 verbose = false
 skip-zero = true
-prof-mod = ['./src/imzml_reader/', 'imzml_reader', '../ms-nexus-tools/src/ms_nexus_tools/', 'ms_nexus_tools']
+prof-mod = ['./src/imzml_reader/', 'imzml_reader', '../xartus/src/xartus/', 'xartus']
 prof-imports = false
 
 [tool.ruff]

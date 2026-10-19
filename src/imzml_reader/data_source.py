@@ -2,13 +2,15 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Any, Callable
+from typing import Any, Callable, override
 
 import numpy as np
 import numpy.typing as npt
 from pyimzml.ImzMLParser import ImzMLParser
 
-from ms_nexus_tools.lib.data_source import (
+from fastdigest import TDigest
+
+from xartus.lib.data_source import (
     AbstractDataSource,
     DataShape,
     Axis,
@@ -17,11 +19,12 @@ from ms_nexus_tools.lib.data_source import (
     Chunk,
     Shape,
     UnknownAxisError,
+    Signal,
 )
 
 
 class ImzMLDataSource(AbstractDataSource):
-    def __init__(self, filename):
+    def __init__(self, filename, force_binned: bool = False):
         self.filename = filename
         self.parser = ImzMLParser(self.filename)
         self.coords = np.array(self.parser.coordinates)
@@ -42,26 +45,49 @@ class ImzMLDataSource(AbstractDataSource):
         self.total_shape = tuple(shape)
         self.density = self.coords.shape[0] / np.prod(shape)
 
-        self.is_centroid = self.parser.spectrum_mode == "centroid"
+        if force_binned:
+            self.is_centroid = True
+        else:
+            self.is_centroid = self.parser.spectrum_mode == "centroid"
 
+        digest = TDigest()
+
+        for ii in range(len(self.parser.coordinates)):
+            digest.batch_update(self.parser.getspectrum(ii)[0])
+
+        mz_min = digest.min()
+        mz_max = digest.max()
+        self.mz_edges = np.array(
+            digest.quantile_vec(
+                np.linspace(0, 1, shape[-1] + (1 if self.is_centroid else 0))
+            )
+        )
+
+        self.nnz = digest.mass()
+
+    @override
     def __enter__(self):
         return self
 
+    @override
     def __exit__(self, exc_type, exc_value, traceback):
         self.parser.__exit__(exc_type, exc_value, traceback)
 
-    def instrament_metadata(self) -> dict[str, Any]:
+    @override
+    def instrument_metadata(self) -> dict[str, Any]:
         """
         Returns a dictionary of values that will be stored as the instrament metadata.
         """
         return {}
 
+    @override
     def experiment_metadata(self) -> dict[str, Any]:
         """
         Returns a dictionary of values that will be stored as the experiment metadata.
         """
         return {}
 
+    @override
     def shape(self) -> DataShape:
         """
         Return the shape of the data.
@@ -70,12 +96,16 @@ class ImzMLDataSource(AbstractDataSource):
             shape=self.total_shape, is_sparse=True, worst_case_density=self.density
         )
 
-    def signal_type(self) -> npt.DTypeLike:
+    @override
+    def signal_definition(self) -> Signal:
         """
         Returns the type for data.
         """
-        return self.parser.intensityPrecision
+        return Signal(
+            name="signal", dtype=self.parser.intensityPrecision, units="intensity"
+        )
 
+    @override
     def output_chunks(self) -> dict[str, Shape]:
         """
         Returns the names and chunking priorities of the desired output array.
@@ -94,6 +124,7 @@ class ImzMLDataSource(AbstractDataSource):
             "spectra": (2, 2, 1),
         }
 
+    @override
     def read_chunks(self) -> list[Shape] | None:
         """
         Retruns a list of chunking priorities taht can be used for reading the raw data.
@@ -104,27 +135,29 @@ class ImzMLDataSource(AbstractDataSource):
         """
         return [(2, 2, 1)] if not self.has_z else [(2, 2, 2, 1)]
 
+    @override
     def chunk_read_count(self, memory_chunk: Shape) -> int:
         """
         Returns the number of read operations needed to fill the provided memory chunk.
         """
         return np.sum(memory_chunk[0:-1])
 
+    @override
     def axis_definitions(self) -> list[Axis]:
         """
         Returns the axis that should be used when storing the data.
         """
         axes = []
-        axes.append(Axis("x", 0, AxisType.EXACT, np.float32, "m"))
-        axes.append(Axis("y", 1, AxisType.EXACT, np.float32, "m"))
+        axes.append(Axis("x", 0, AxisType.EXACT, np.int64, "m"))
+        axes.append(Axis("y", 1, AxisType.EXACT, np.int64, "m"))
         if self.has_z:
-            axes.append(Axis("z", 2, AxisType.EXACT, np.float32, "m"))
+            axes.append(Axis("z", 2, AxisType.EXACT, np.int64, "m"))
             axes.append(
                 Axis(
                     "mz",
                     3,
                     AxisType.BINNED if self.is_centroid else AxisType.EXACT,
-                    self.parser.mzPrecision,
+                    np.float64,
                     "mz",
                 )
             )
@@ -134,12 +167,13 @@ class ImzMLDataSource(AbstractDataSource):
                     "mz",
                     2,
                     AxisType.BINNED if self.is_centroid else AxisType.EXACT,
-                    self.parser.mzPrecision,
+                    np.float64,
                     "mz",
                 )
             )
         return axes
 
+    @override
     def exact_axis_values(self, axis: Axis) -> np.ndarray:
         """
         Returns the values for the specified exact axis.
@@ -150,24 +184,20 @@ class ImzMLDataSource(AbstractDataSource):
             inx = space_coords.index(axis.name)
             return np.arange(self.min_coords[inx], self.max_coords[inx] + 1) * mult
         if axis.name == "mz":
-            # I am not sure what to do here! (plagues and curses, the reader does not provide this information!)
-            # TODO (dmd): Improve pyImzML to provide some data for this.
-            # https://github.com/rosalindfranklininstitute/imzml-reader/issues/1
-            return np.arange(0, self.total_shape[-1])
+            return self.mz_edges
         raise UnknownAxisError(f"Axis {axis.name} is not a know axis.")
 
+    @override
     def binned_axis_edges(self, axis: Axis) -> np.ndarray:
         """
         Returns the bin edges used to histogram the given binned axis.
         This is used for generting the output accumulations accros this axis, if required.
         """
         if axis.name == "mz":
-            # I am not sure what to do here! (plagues and curses, the reader does not provide this information!)
-            # TODO (dmd): Improve pyImzML to provide some data for this.
-            # https://github.com/rosalindfranklininstitute/imzml-reader/issues/1
-            return np.arange(0, self.total_shape[-1])
+            return self.mz_edges
         raise UnknownAxisError(f"Axis {axis.name} is not a know axis.")
 
+    @override
     def output_accumulations(self) -> dict[str, tuple[str, ...]]:
         """
         Returns the names and lists of axis that should be
@@ -185,6 +215,7 @@ class ImzMLDataSource(AbstractDataSource):
             accumulations["total_spectra"] = ("x", "y")
         return accumulations
 
+    @override
     def fill_chunk(
         self,
         memory_chunk: Chunk,
@@ -204,52 +235,53 @@ class ImzMLDataSource(AbstractDataSource):
         -> return_data.shape == self.shape()
 
         """
-        coord_mask = (self.coords[:, 0] >= memory_chunk[0].start) and (
-            self.coords[:, 0] <= memory_chunk[0].stop
-        )
-        coord_mask &= (self.coords[:, 1] >= memory_chunk[1].start) and (
-            self.coords[:, 1] <= memory_chunk[1].stop
-        )
+        coord_mask = self.coords[:, 0] >= memory_chunk[0].start
+        coord_mask &= self.coords[:, 0] <= memory_chunk[0].stop
+        coord_mask &= self.coords[:, 1] >= memory_chunk[1].start
+        coord_mask &= self.coords[:, 1] <= memory_chunk[1].stop
         if self.has_z:
             coord_mask &= (self.coords[:, 2] >= memory_chunk[2].start) and (
                 self.coords[:, 2] <= memory_chunk[2].stop
             )
-        coord_inx = np.nonzero(coord_mask)
+        coord_inx = np.nonzero(coord_mask)[0]
 
         coords: list[list[int]] = []
         counts: list[int] = []
         int_data: list[np.ndarray] = []
         mz_data: list[np.ndarray] = []
-        inx_data: list[np.ndarray] = []
 
         coord_parts = [memory_chunk.range(0), memory_chunk.range(1)]
         if self.has_z:
             coord_parts.append(memory_chunk.range(2))
 
         for inx in coord_inx:
-            current_coords = self.coords[inx, :]
-            mzs, ints = self.parser.getspectrum(current_coords)
+            current_coords = self.coords[inx, :] - 1
+            mzs, ints = self.parser.getspectrum(inx)
             count = len(mzs)
             counts.append(count)
             coords.append([*current_coords, 0])
             int_data.append(ints)
             mz_data.append(mzs)
 
-            # TODO (dmd): Can we find a way to get the actual axis values? See above.
-            # https://github.com/rosalindfranklininstitute/imzml-reader/issues/1
-            inx_data.append(np.arange(len(mzs)))
-
             update(1)
 
         mz_array = np.concatenate(mz_data)
-        # TODO (dmd): Can we find a way to get the actual axis values? See above.
-        # https://github.com/rosalindfranklininstitute/imzml-reader/issues/1
-        labels = np.concatenate(inx_data)
+        labels = np.searchsorted(self.mz_edges[1:], mz_array)
         labels[labels == self.total_shape[-1]] = self.total_shape[-1] - 1
         final_coords = np.array(coords).T
         final_coords = np.repeat(final_coords, counts, axis=1)
         final_coords[3 if self.has_z else 2, :] = labels
+
+        # return MultiCOO(
+        #     coords=final_coords,
+        #     values={"signal": np.concatenate(int_data), "mz": mz_array},
+        # )
+
+        values = {"signal": np.concatenate(int_data)}
+        if self.is_centroid:
+            values["mz"] = mz_array
+
         return MultiCOO(
             coords=final_coords,
-            values={"signal": np.concatenate(int_data), "mz": mz_array},
+            values=values,
         )
