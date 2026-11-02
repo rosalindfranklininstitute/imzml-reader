@@ -1,0 +1,9 @@
+REM SPDX-FileCopyrightText: 2026 Duncan McDougall <duncan.mcdougall@rfi.ac.uk>
+REM
+REM SPDX-License-Identifier: LicenseRef-RFI-Apache-2.0-Commons-clause
+
+set FILE=imzml
+del %FILE%.py.lprof
+uv run kernprof %FILE%.py -- -c config.toml
+uv run python -m line_profiler -rmzt %FILE%.py.lprof > %FILE%.py.lines
+echo Done. Read results in %FILE%.py.lines

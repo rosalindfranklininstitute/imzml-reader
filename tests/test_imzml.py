@@ -1,19 +1,15 @@
 # SPDX-FileCopyrightText: 2026 Duncan McDougall <duncan.mcdougall@rfi.ac.uk>
 #
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: LicenseRef-RFI-Apache-2.0-Commons-clause
 from pathlib import Path
 
 import numpy as np
-
-from xartus.api import data_convert
-from xartus.lib.data_source import Axis
-from imzml_reader import imzml_write_from_nexus as imzml
-
-from pyimzml.ImzMLParser import ImzMLParser
-
-from nexus_pixel_man_test_data import ManData, Man2DDataSource, data_files
-
 import pytest
+from nexus_pixel_man_test_data import Man2DDataSource, ManData, data_files
+from pyimzml.ImzMLParser import ImzMLParser
+from xartus.api import data_convert
+
+from imzml_reader import imzml_write_from_nexus as imzml
 
 
 @pytest.fixture(scope="module")
