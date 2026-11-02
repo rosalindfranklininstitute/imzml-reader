@@ -9,14 +9,11 @@ resolution-markers = [
 
 [[package]]
 name = "argsui"
-version = "0.3.2"
+version = "0.3.6"
 source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "pyside6" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/c8/d9/32e5f5049f4581a4d3c83b621170c42bbba7457540cac76734ceb3378b3b/argsui-0.3.2.tar.gz", hash = "sha256:5f4115c2e4cc11a806b436a0312cc32bb079f9dfe99567072702c1dd7020fc03", size = 18314, upload-time = "2026-09-23T09:06:49.884Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/6a/4d/c48e03464aaa76693728e5efb97c62d72c30d20e25074dd26a69de61eafa/argsui-0.3.6.tar.gz", hash = "sha256:016b95b81c0a1acbfaa44d9d2ffb5ea2625d173e49e981004ada4d4cc69b3e75", size = 19797, upload-time = "2026-10-23T10:16:44.774Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/29/ac/c794740c6a6c2d5726e14a876c0f43c688f2ac94fc1fb7cfc84e3f0ceae8/argsui-0.3.2-py3-none-any.whl", hash = "sha256:2a14a9ffdcebfca8f6ea75c9eb7441a57fdcdbc8fdb1c69db8224c06156e4013", size = 21723, upload-time = "2026-09-23T09:06:48.989Z" },
+    { url = "https://files.pythonhosted.org/packages/08/c8/8252b2267939b0c8efa777ff2cb76541a2654608f1ad61abe8c323add1db/argsui-0.3.6-py3-none-any.whl", hash = "sha256:6f9ede3db1af619dc5636f54256c175666f4ced184af3859f966abecef90a49d", size = 21923, upload-time = "2026-10-23T10:16:43.832Z" },
 ]
 
 [[package]]
@@ -269,7 +266,6 @@ source = { editable = "." }
 dependencies = [
     { name = "argsui" },
     { name = "fastdigest" },
-    { name = "icecream" },
     { name = "numpy" },
     { name = "pyimzml" },
     { name = "tqdm" },
@@ -278,6 +274,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "icecream" },
     { name = "line-profiler" },
     { name = "nexus-pixel-man-test-data" },
     { name = "pytest" },
@@ -289,15 +286,15 @@ dev = [
 requires-dist = [
     { name = "argsui" },
     { name = "fastdigest", specifier = ">=0.12.0" },
-    { name = "icecream", specifier = ">=2.2.0" },
     { name = "numpy", specifier = ">=2.4.6" },
-    { name = "pyimzml", editable = "../pyimzML" },
+    { name = "pyimzml", git = "https://github.com/rosalindfranklininstitute/pyimzML.git" },
     { name = "tqdm", specifier = ">=4.70.0" },
     { name = "xartus", specifier = ">=0.5.1" },
 ]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "icecream", specifier = ">=2.2.0" },
     { name = "line-profiler", specifier = ">=5.0.2" },
     { name = "nexus-pixel-man-test-data", editable = "../nexus_pixel_man_test_data" },
     { name = "pytest", specifier = ">=9.1.1" },
@@ -437,9 +434,9 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "argsui" },
+    { name = "argsui", specifier = ">=0.3.6" },
     { name = "numpy", specifier = ">=2.4.6" },
-    { name = "xartus", editable = "../xartus" },
+    { name = "xartus", specifier = ">=0.5.1" },
 ]
 
 [package.metadata.requires-dev]
@@ -579,14 +576,8 @@ wheels = [
 [[package]]
 name = "pyimzml"
 version = "1.5.5"
-source = { editable = "../pyimzML" }
+source = { git = "https://github.com/rosalindfranklininstitute/pyimzML.git#0814af2c93cf35c115492d5c664279db4a00e746" }
 dependencies = [
-    { name = "numpy" },
-    { name = "wheezy-template" },
-]
-
-[package.metadata]
-requires-dist = [
     { name = "numpy" },
     { name = "wheezy-template" },
 ]
@@ -598,54 +589,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/f3/91/9c6ee907786a473bf81c5f53cf703ba0957b23ab84c264080fb5a450416f/pyparsing-3.3.2.tar.gz", hash = "sha256:c777f4d763f140633dcb6d8a3eda953bf7a214dc4eff598413c070bcdc117cbc", size = 6851574, upload-time = "2026-01-21T03:57:59.36Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/10/bd/c038d7cc38edc1aa5bf91ab8068b63d4308c66c4c8bb3cbba7dfbc049f9c/pyparsing-3.3.2-py3-none-any.whl", hash = "sha256:850ba148bd908d7e2411587e247a1e4f0327839c40e2e5e6d05a007ecc69911d", size = 122781, upload-time = "2026-01-21T03:57:55.912Z" },
-]
-
-[[package]]
-name = "pyside6"
-version = "6.11.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "pyside6-addons" },
-    { name = "pyside6-essentials" },
-    { name = "shiboken6" },
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/da/a6/27ba5947ed48918f7b74b7c43a1e280aac069e36f25adeb4c9adfac835c4/pyside6-6.11.1-cp310-abi3-macosx_13_0_universal2.whl", hash = "sha256:537682c3b7530817203e667c1f5a2f00486b37bf52c52eeab438544c7a0917f6", size = 571921, upload-time = "2026-05-13T09:47:36.402Z" },
-    { url = "https://files.pythonhosted.org/packages/d8/de/af89d71410c83b10654d86ff9aff2a4f87c30163658f1cc145242e222526/pyside6-6.11.1-cp310-abi3-manylinux_2_34_x86_64.whl", hash = "sha256:b1fc521ba2bb5109425ab8add06bddbdd524abcad06cfa012cc39a22a189feb2", size = 572102, upload-time = "2026-05-13T09:47:38.249Z" },
-    { url = "https://files.pythonhosted.org/packages/b6/0e/d583bd3f7bf5046a4497b36f3902cfb64aa29554489a5a25c18e6b4ac0ac/pyside6-6.11.1-cp310-abi3-manylinux_2_39_aarch64.whl", hash = "sha256:75f0005c3eb95c07cfb65522ec50d0815ac007a96482c21dc3cb4b4c04895d84", size = 572098, upload-time = "2026-05-13T09:47:39.44Z" },
-    { url = "https://files.pythonhosted.org/packages/57/f2/d9d8ce1373dabb37e5919f63cd18446556079631d3f2eea3ada03c29f6b8/pyside6-6.11.1-cp310-abi3-win_amd64.whl", hash = "sha256:0968877ab1fb4ef3587a284da6fe05e8647ada56a6a3750b6395188e01f4aba6", size = 578377, upload-time = "2026-05-13T09:47:40.76Z" },
-    { url = "https://files.pythonhosted.org/packages/96/02/a6057d8bd2bdb1940820fff2d627fdf4013148c9c57adf69fa40d3452ac3/pyside6-6.11.1-cp310-abi3-win_arm64.whl", hash = "sha256:acee467cb5f256cc47ebb9d815a054c1d8416da380c191b247a76d164aa3f805", size = 561765, upload-time = "2026-05-13T09:47:41.9Z" },
-]
-
-[[package]]
-name = "pyside6-addons"
-version = "6.11.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "pyside6-essentials" },
-    { name = "shiboken6" },
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/3f/6b/8bc94aff48b63f788f2d84e5467c12362d68906ba742c0942f46cb04c879/pyside6_addons-6.11.1-cp310-abi3-macosx_13_0_universal2.whl", hash = "sha256:54733c77f789bef5f03c6aff4ad3bec8b2eff021f0cfcbc53d5e6c250ded24f9", size = 331714589, upload-time = "2026-05-13T09:39:12.36Z" },
-    { url = "https://files.pythonhosted.org/packages/dd/62/fb1428a523b2a4541e232aab50d9e789e6b4526f37fd9593452a7ea5b6b3/pyside6_addons-6.11.1-cp310-abi3-manylinux_2_34_x86_64.whl", hash = "sha256:8e6c65fbd73a512d6f72cda8d8277444a85a34dc99dd1dae9c21d35b8671bb1f", size = 175063224, upload-time = "2026-05-13T09:39:34.185Z" },
-    { url = "https://files.pythonhosted.org/packages/ee/9b/2ccd52f66db55c06de65d0501170a1935d04d64d0a230c0d892284a02ce3/pyside6_addons-6.11.1-cp310-abi3-manylinux_2_39_aarch64.whl", hash = "sha256:bf1c6c4e954e5eba3d2a7c661ad4b9689e8f09c7f4a16bdf29713371d11af993", size = 170553429, upload-time = "2026-05-13T09:39:54.424Z" },
-    { url = "https://files.pythonhosted.org/packages/9a/bd/8adc4d350b3b363f3dfc8fccdcf5bfed25f7e36c2fff30c64e106f4f1572/pyside6_addons-6.11.1-cp310-abi3-win_amd64.whl", hash = "sha256:0d13c4dfd671b050a48e4f8d8ddc724b7248f9c0437e7fc47fdf316278572923", size = 168816308, upload-time = "2026-05-13T09:40:13.541Z" },
-    { url = "https://files.pythonhosted.org/packages/65/b7/9a840d97f0f0f04e372a87e205dd30ee285b4e3b021b188459a917c9dc76/pyside6_addons-6.11.1-cp310-abi3-win_arm64.whl", hash = "sha256:3494f480dee92f415be2f2d989c0b3f4755ac332b28045cbf4ba0f5c5a22ba37", size = 35759347, upload-time = "2026-05-13T09:40:21.199Z" },
-]
-
-[[package]]
-name = "pyside6-essentials"
-version = "6.11.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "shiboken6" },
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/b3/da/10d9197e7370eb4fed8df5fc547b7548dec88e5c5949e2d450db4ae96feb/pyside6_essentials-6.11.1-cp310-abi3-macosx_13_0_universal2.whl", hash = "sha256:228de53c2bc26b07e5021fbe3614fc44ca08e4dab9999af08c2b389d2c239957", size = 110352945, upload-time = "2026-05-13T09:43:08.006Z" },
-    { url = "https://files.pythonhosted.org/packages/5c/49/0e1237c4400bec7e335d2c4eeb49bc40d9fd88a9ac44ca9083ce1abdc308/pyside6_essentials-6.11.1-cp310-abi3-manylinux_2_34_x86_64.whl", hash = "sha256:e3ef7027b41e4e55fadb56e3b3257dc8ee92154b639fe67fc4c8e05e9d976c60", size = 79908535, upload-time = "2026-05-13T09:43:24.836Z" },
-    { url = "https://files.pythonhosted.org/packages/4c/c5/da4c5f23c6540ac5211a1f60177c8dee84b1bf40f2719479587ab8c60731/pyside6_essentials-6.11.1-cp310-abi3-manylinux_2_39_aarch64.whl", hash = "sha256:a039b6da68a3a4b9d243217b2b98d475eed3f617159ef6be925badab53c11b0d", size = 78960051, upload-time = "2026-05-13T09:43:35.423Z" },
-    { url = "https://files.pythonhosted.org/packages/64/0e/b663ecc96ca57b5c91b83b6615d6b174380b0faf30338125c26e053d6aa7/pyside6_essentials-6.11.1-cp310-abi3-win_amd64.whl", hash = "sha256:63311bd48e32c584599ab04b9ef7c324082374cd2c9fa533f978fb893bb47e40", size = 77549267, upload-time = "2026-05-13T09:43:44.92Z" },
-    { url = "https://files.pythonhosted.org/packages/f1/12/eb6723faf5cb7fa581145da1c15f40d641b96e080f0491af2f1859fdeedb/pyside6_essentials-6.11.1-cp310-abi3-win_arm64.whl", hash = "sha256:11253ea52aabecefe9febddbbe78b43a824129e3af1cec98431028fba7fa954f", size = 57964512, upload-time = "2026-05-13T09:43:52.968Z" },
 ]
 
 [[package]]
@@ -720,18 +663,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/de/94/980b50a6531b3019e45ddeada0626d45fa85cbe22300844a7983285bed3b/pyyaml-6.0.3-cp313-cp313-win32.whl", hash = "sha256:d0eae10f8159e8fdad514efdc92d74fd8d682c933a6dd088030f3834bc8e6b26", size = 137427, upload-time = "2025-09-25T21:32:32.58Z" },
     { url = "https://files.pythonhosted.org/packages/97/c9/39d5b874e8b28845e4ec2202b5da735d0199dbe5b8fb85f91398814a9a46/pyyaml-6.0.3-cp313-cp313-win_amd64.whl", hash = "sha256:79005a0d97d5ddabfeeea4cf676af11e647e41d81c9a7722a193022accdb6b7c", size = 154090, upload-time = "2025-09-25T21:32:33.659Z" },
     { url = "https://files.pythonhosted.org/packages/73/e8/2bdf3ca2090f68bb3d75b44da7bbc71843b19c9f2b9cb9b0f4ab7a5a4329/pyyaml-6.0.3-cp313-cp313-win_arm64.whl", hash = "sha256:5498cd1645aa724a7c71c8f378eb29ebe23da2fc0d7a08071d89469bf1d2defb", size = 140246, upload-time = "2025-09-25T21:32:34.663Z" },
-]
-
-[[package]]
-name = "shiboken6"
-version = "6.11.1"
-source = { registry = "https://pypi.org/simple" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/17/f3/f2b63df0251e7cd3172ea28e32ede52739de9566bcefcd0178681538ac81/shiboken6-6.11.1-cp310-abi3-macosx_13_0_universal2.whl", hash = "sha256:1a16867f103ef1c662a5f09dfed03273a9f81688b174555162c58e83650a3f02", size = 476874, upload-time = "2026-05-13T09:47:01.091Z" },
-    { url = "https://files.pythonhosted.org/packages/c7/9b/e0355d8897b5c150770f1d95718aad17d432fcc9c035c04f3f58427d4693/shiboken6-6.11.1-cp310-abi3-manylinux_2_34_x86_64.whl", hash = "sha256:9a8bccfafc8805254cabcfa1edfaf55cd52889f4998c91ad0d9a4433fb1bcdbe", size = 272222, upload-time = "2026-05-13T09:47:02.653Z" },
-    { url = "https://files.pythonhosted.org/packages/57/d5/dd4f1defed400be03340f2ede34b61f846776650b4e7ed9ebaf4c71979a2/shiboken6-6.11.1-cp310-abi3-manylinux_2_39_aarch64.whl", hash = "sha256:1bd2f4314414df2d122d9f646e03b731bc6d6b5f77a5f53f99a4fe4e97d84e6f", size = 270350, upload-time = "2026-05-13T09:47:04.02Z" },
-    { url = "https://files.pythonhosted.org/packages/52/b5/3f6fb2ee65b534193fb4ef713dd619dc31dadff5d12c16979a7699ad58be/shiboken6-6.11.1-cp310-abi3-win_amd64.whl", hash = "sha256:c2c6863aa80ec18c0f82cea3417837b279cdc60024ac17123461dc9042577df7", size = 1223647, upload-time = "2026-05-13T09:47:05.924Z" },
-    { url = "https://files.pythonhosted.org/packages/98/d1/f15ca0e1666faae02c945f48e745ea35f8fcd8243b176109b4e2c4251f47/shiboken6-6.11.1-cp310-abi3-win_arm64.whl", hash = "sha256:7c8d9af17db4495d4fa5b1c393f218311c4855546b9dfa6a0bd21bcd66b55e9d", size = 1784170, upload-time = "2026-05-13T09:47:07.617Z" },
 ]
 
 [[package]]
@@ -818,7 +749,7 @@ wheels = [
 [[package]]
 name = "xartus"
 version = "0.5.1"
-source = { editable = "../xartus" }
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "argsui" },
     { name = "dask" },
@@ -830,39 +761,7 @@ dependencies = [
     { name = "tqdm" },
     { name = "xarray" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "argsui", specifier = ">=0.3.0" },
-    { name = "dask", specifier = ">=2026.3.0" },
-    { name = "h5py", specifier = ">=3.15.1" },
-    { name = "hdf5plugin", specifier = ">=7.1.0" },
-    { name = "matplotlib", specifier = ">=3.10.8" },
-    { name = "numpy", specifier = ">=2.4.2" },
-    { name = "numpy", specifier = ">=2.4.6" },
-    { name = "sparse", specifier = ">=0.18.0" },
-    { name = "tqdm", specifier = ">=4.67.3" },
-    { name = "xarray", specifier = ">=2026.7.0" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "hypothesis", specifier = ">=6.151.7" },
-    { name = "icecream", specifier = ">=2.1.10" },
-    { name = "line-profiler", specifier = ">=5.0.1" },
-    { name = "nexus-pixel-man-test-data", editable = "../nexus_pixel_man_test_data" },
-    { name = "pillow", specifier = ">=12.1.1" },
-    { name = "pre-commit", specifier = ">=4.6.2" },
-    { name = "pytest", specifier = ">=9.0.2" },
-    { name = "pytest-autoprofile", specifier = ">=0.19.0" },
-    { name = "pytest-cov", specifier = ">=7.0.0" },
-    { name = "pytest-local-badge", specifier = ">=1.3.1" },
-    { name = "snakeviz", specifier = ">=2.2.2" },
-]
-doc = [
-    { name = "myst-nb", specifier = ">=1.4.0" },
-    { name = "myst-parser", specifier = ">=5.1.0" },
-    { name = "pillow", specifier = ">=12.1.1" },
-    { name = "sphinx-autodoc-typehints", specifier = ">=3.13.2" },
-    { name = "sphinx-rtd-theme", specifier = ">=3.1.0" },
+sdist = { url = "https://files.pythonhosted.org/packages/2a/eb/01c33c926bf0e73cae292f3b277d85be1b573946ab51d1dde26531d509f6/xartus-0.5.1.tar.gz", hash = "sha256:1fca9058b6e4c2531e6f3d481d2261f5874d3a261fb84b1b6763115f47f2d950", size = 42677, upload-time = "2026-10-28T13:55:49.218Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/73/29/17402129170c2bad14f12bc6ee471527cf34204b1f57ca027c4449728fc8/xartus-0.5.1-py3-none-any.whl", hash = "sha256:e44673194dd19613fcace0c9eca77598645222b1bb26ff5071d7749538e12ad3", size = 54448, upload-time = "2026-10-28T13:55:48.072Z" },
 ]

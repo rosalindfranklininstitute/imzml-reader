@@ -5,8 +5,8 @@ from pathlib import Path
 
 import numpy as np
 
-from ms_nexus_tools.api import data_convert
-from ms_nexus_tools.lib.data_source import Axis, AxisType
+from xartus.api import data_convert
+from xartus.lib.data_source import Axis
 from imzml_reader import imzml_write_from_nexus as imzml
 
 from pyimzml.ImzMLParser import ImzMLParser
@@ -14,7 +14,6 @@ from pyimzml.ImzMLParser import ImzMLParser
 from nexus_pixel_man_test_data import ManData, Man2DDataSource, data_files
 
 import pytest
-
 
 
 @pytest.fixture(scope="module")
@@ -56,7 +55,6 @@ def test_full_convert(nx_file, imzml_files, man_data, man_file):
     man_data_source = Man2DDataSource(man_data, multipliers={"mz": 0.1})
 
     convert_args = data_convert.ProcessArgs(
-        in_path=man_file,
         out_path=nx_file,
         chunk_max_byte_count=1024 * 1024,
         memory_max_byte_count=1024 * 1024 * 1024,
@@ -68,6 +66,7 @@ def test_full_convert(nx_file, imzml_files, man_data, man_file):
     imzml_args = imzml.ProcessArgs(
         in_path=nx_file,
         out_path=imzml_files[0],
+        group_name="data",
         entry_name="images",
         signal="signal",
         mass="mz",
@@ -95,7 +94,6 @@ def test_full_convert_one_indexed(nx_file, imzml_files, man_data, man_file):
     man_data_source = Man2DDataSource(man_data)
 
     convert_args = data_convert.ProcessArgs(
-        in_path=man_file,
         out_path=nx_file,
         chunk_max_byte_count=1024 * 1024,
         memory_max_byte_count=1024 * 1024 * 1024,
@@ -107,6 +105,7 @@ def test_full_convert_one_indexed(nx_file, imzml_files, man_data, man_file):
     imzml_args = imzml.ProcessArgs(
         in_path=nx_file,
         out_path=imzml_files[0],
+        group_name="data",
         entry_name="images",
         signal="signal",
         mass="mz",
@@ -132,7 +131,6 @@ def test_swap_x_y(nx_file, imzml_files, man_data, man_file):
     man_data_source = Man2DDataSource(man_data)
 
     convert_args = data_convert.ProcessArgs(
-        in_path=man_file,
         out_path=nx_file,
         chunk_max_byte_count=1024 * 1024,
         memory_max_byte_count=1024 * 1024 * 1024,
@@ -144,6 +142,7 @@ def test_swap_x_y(nx_file, imzml_files, man_data, man_file):
     imzml_args = imzml.ProcessArgs(
         in_path=nx_file,
         out_path=imzml_files[0],
+        group_name="data",
         entry_name="images",
         signal="signal",
         mass="mz",
@@ -170,7 +169,6 @@ def test_total_image(nx_file, imzml_files, man_data, man_file):
     man_data_source = Man2DDataSource(man_data)
 
     convert_args = data_convert.ProcessArgs(
-        in_path=man_file,
         out_path=nx_file,
         chunk_max_byte_count=1024 * 1024,
         memory_max_byte_count=1024 * 1024 * 1024,
@@ -182,6 +180,7 @@ def test_total_image(nx_file, imzml_files, man_data, man_file):
     imzml_args = imzml.ProcessArgs(
         in_path=nx_file,
         out_path=imzml_files[0],
+        group_name="accumulations",
         entry_name="total_image",
         signal="signal",
         mass="y",
@@ -201,46 +200,7 @@ def test_total_image(nx_file, imzml_files, man_data, man_file):
     with ImzMLParser(filename=imzml_files[0]) as imzml_data:
         for ii, coords in enumerate(imzml_data.coordinates):
             mz_values, int_values = imzml_data.getspectrum(ii)
-            if coords[2] == 1:
+            if coords[2] == 0:
                 np.testing.assert_allclose(sum_image[coords[0], :], int_values[:])
-            elif coords[2] == 0:
+            elif coords[2] == 1:
                 np.testing.assert_allclose(max_image[coords[0], :], int_values[:])
-
-
-def test_binned_axis(nx_file, imzml_files, man_data, man_file):
-
-    man_data_source = Man2DDataSource(
-        man_data,
-        supplimentary_axes=[Axis("mz", 2, AxisType.BINNED, np.int16, "mz")],
-    )
-
-    convert_args = data_convert.ProcessArgs(
-        in_path=man_file,
-        out_path=nx_file,
-        chunk_max_byte_count=1024 * 1024,
-        memory_max_byte_count=1024 * 1024 * 1024,
-        data_source=man_data_source,
-    )
-    data_convert.process(convert_args, {})
-    assert nx_file.exists()
-
-    imzml_args = imzml.ProcessArgs(
-        in_path=nx_file,
-        out_path=imzml_files[0],
-        entry_name="images",
-        signal="signal",
-        mass="mz_exact",
-        x_axis=0,
-        y_axis=1,
-        z_axis=-1,
-        mz_axis=2,
-        one_indexed=False,
-    )
-    imzml.process(imzml_args, {})
-    assert imzml_files[0].exists()
-    assert imzml_files[1].exists()
-
-    with ImzMLParser(filename=imzml_files[0]) as imzml_data:
-        for ii, coords in enumerate(imzml_data.coordinates):
-            mz_values, int_values = imzml_data.getspectrum(ii)
-            np.testing.assert_allclose(man_data.dense[*coords[0:2], :], int_values[:])

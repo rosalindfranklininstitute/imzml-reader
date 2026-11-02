@@ -15,7 +15,7 @@ import numpy as np
 
 from argsui import arg_field, FilePathType, ConfigFileArgs, InteractiveArgs, ArgType
 
-from ms_nexus_tools.lib.nxs import NexusFile
+from xartus.lib.nxs import NexusFile
 
 
 @dataclass
@@ -40,9 +40,15 @@ class ProcessArgs(ConfigFileArgs, InteractiveArgs):
         type=FilePathType(must_exist=False),
     )
 
+    group_name: str = arg_field(
+        require=True,
+        help="The name of the subentry to extract data from.",
+        default=None,
+    )
+
     entry_name: str = arg_field(
         require=True,
-        help="The name of the entry to extract data from.",
+        help="The name of the NXdata to extract data from.",
         default=None,
     )
 
@@ -82,11 +88,11 @@ def process(args: ProcessArgs, config: dict[str, Any] = {}) -> None:
 
     nx_file = NexusFile(args.in_path, mode="r")
 
-    with nx_file.as_context() as nx:
-        shape = nx.root.entry[args.entry_name].data[args.signal].shape
-        mz_shape = nx.root.entry[args.entry_name].data[args.mass].shape
+    with nx_file.as_context():
+        shape = nx_file.entry[args.group_name][args.entry_name][args.signal].shape
+        mz_shape = nx_file.entry[args.group_name][args.entry_name][args.mass].shape
         if mz_shape != shape:
-            mz = nx.root.entry[args.entry_name].data[args.mass].nxdata
+            mz = nx_file.entry[args.group_name][args.entry_name][args.mass][:]
         else:
             mz = None
 
@@ -159,17 +165,13 @@ def process(args: ProcessArgs, config: dict[str, Any] = {}) -> None:
                 if args.z_axis >= 0:
                     result_inx[args.z_axis] = coords[2]
 
-                intensity = (
-                    nx.root.entry[args.entry_name]
-                    .data[args.signal][*result_inx]
-                    .astype(np.float32)
-                )
+                intensity = nx_file.entry[args.group_name][args.entry_name][
+                    args.signal
+                ][*result_inx].astype(np.float32)
                 if mz is None:
-                    masses = (
-                        nx.root.entry[args.entry_name]
-                        .data[args.mass][*result_inx]
-                        .astype(np.float32)
-                    )
+                    masses = nx_file.entry[args.group_name][args.entry_name][args.mass][
+                        *result_inx
+                    ].astype(np.float32)
                 else:
                     masses = mz
 
