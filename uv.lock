@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = "==3.13.*"
 resolution-markers = [
     "sys_platform == 'win32'",
@@ -293,7 +293,7 @@ requires-dist = [
     { name = "numpy", specifier = ">=2.4.6" },
     { name = "pyimzml", editable = "../pyimzML" },
     { name = "tqdm", specifier = ">=4.70.0" },
-    { name = "xartus" },
+    { name = "xartus", specifier = ">=0.5.1" },
 ]
 
 [package.metadata.requires-dev]
@@ -432,7 +432,6 @@ source = { editable = "../nexus_pixel_man_test_data" }
 dependencies = [
     { name = "argsui" },
     { name = "numpy" },
-    { name = "pyimzml" },
     { name = "xartus" },
 ]
 
@@ -440,7 +439,6 @@ dependencies = [
 requires-dist = [
     { name = "argsui" },
     { name = "numpy", specifier = ">=2.4.6" },
-    { name = "pyimzml", editable = "../pyimzML" },
     { name = "xartus", editable = "../xartus" },
 ]
 
@@ -819,7 +817,7 @@ wheels = [
 
 [[package]]
 name = "xartus"
-version = "0.4.3"
+version = "0.5.1"
 source = { editable = "../xartus" }
 dependencies = [
     { name = "argsui" },

@@ -10,17 +10,17 @@ from pyimzml.ImzMLParser import ImzMLParser
 
 from fastdigest import TDigest
 
-from xartus.lib.data_source import (
+from xartus.lib import (
     AbstractDataSource,
     DataShape,
     Axis,
-    AxisType,
     MultiCOO,
     Chunk,
     Shape,
     UnknownAxisError,
     Signal,
 )
+from xartus.lib.writers import AbstractWriter, SumAndMax
 
 
 class ImzMLDataSource(AbstractDataSource):
@@ -75,16 +75,14 @@ class ImzMLDataSource(AbstractDataSource):
 
     @override
     def instrument_metadata(self) -> dict[str, Any]:
-        """
-        Returns a dictionary of values that will be stored as the instrament metadata.
-        """
+        return {}
+
+    @override
+    def user_metadata(self) -> dict[str, Any]:
         return {}
 
     @override
     def experiment_metadata(self) -> dict[str, Any]:
-        """
-        Returns a dictionary of values that will be stored as the experiment metadata.
-        """
         return {}
 
     @override
@@ -92,9 +90,7 @@ class ImzMLDataSource(AbstractDataSource):
         """
         Return the shape of the data.
         """
-        return DataShape(
-            shape=self.total_shape, is_sparse=True, worst_case_density=self.density
-        )
+        return DataShape(shape=self.total_shape, worst_case_density=self.density)
 
     @override
     def signal_definition(self) -> Signal:
@@ -106,7 +102,7 @@ class ImzMLDataSource(AbstractDataSource):
         )
 
     @override
-    def output_chunks(self) -> dict[str, Shape]:
+    def output_chunk_priorities(self) -> dict[str, Shape]:
         """
         Returns the names and chunking priorities of the desired output array.
         For examlpe simple image data (x,y, spectra) with shape (32,32,184000)
@@ -148,16 +144,15 @@ class ImzMLDataSource(AbstractDataSource):
         Returns the axis that should be used when storing the data.
         """
         axes = []
-        axes.append(Axis("x", 0, AxisType.EXACT, np.int64, "m"))
-        axes.append(Axis("y", 1, AxisType.EXACT, np.int64, "m"))
+        axes.append(Axis("x", 0, np.int64, "m"))
+        axes.append(Axis("y", 1, np.int64, "m"))
         if self.has_z:
-            axes.append(Axis("z", 2, AxisType.EXACT, np.int64, "m"))
+            axes.append(Axis("z", 2, np.int64, "m"))
             axes.append(
                 Axis(
                     "mz",
                     3,
-                    AxisType.BINNED if self.is_centroid else AxisType.EXACT,
-                    np.float64,
+                    np.int64,
                     "mz",
                 )
             )
@@ -166,7 +161,6 @@ class ImzMLDataSource(AbstractDataSource):
                 Axis(
                     "mz",
                     2,
-                    AxisType.BINNED if self.is_centroid else AxisType.EXACT,
                     np.float64,
                     "mz",
                 )
@@ -174,7 +168,7 @@ class ImzMLDataSource(AbstractDataSource):
         return axes
 
     @override
-    def exact_axis_values(self, axis: Axis) -> np.ndarray:
+    def axis_values(self, axis: Axis) -> np.ndarray:
         """
         Returns the values for the specified exact axis.
         """
@@ -188,17 +182,7 @@ class ImzMLDataSource(AbstractDataSource):
         raise UnknownAxisError(f"Axis {axis.name} is not a know axis.")
 
     @override
-    def binned_axis_edges(self, axis: Axis) -> np.ndarray:
-        """
-        Returns the bin edges used to histogram the given binned axis.
-        This is used for generting the output accumulations accros this axis, if required.
-        """
-        if axis.name == "mz":
-            return self.mz_edges
-        raise UnknownAxisError(f"Axis {axis.name} is not a know axis.")
-
-    @override
-    def output_accumulations(self) -> dict[str, tuple[str, ...]]:
+    def output_accumulations(self) -> list[AbstractWriter]:
         """
         Returns the names and lists of axis that should be
         accumulated (summed and max).
@@ -207,12 +191,12 @@ class ImzMLDataSource(AbstractDataSource):
         'total_images':     ('mz') # Accumulate over the spectra
         'total_spectra':    ('x','y') # Accumulate over the images
         """
-        accumulations = {}
-        accumulations["total_images"] = "mz"
+        accumulations = []
+        accumulations.append(SumAndMax("total_images", axes=["mz"]))
         if self.has_z:
-            accumulations["total_spectra"] = ("x", "y", "z")
+            accumulations.append(SumAndMax("total_spectra", axes=["x", "y", "z"]))
         else:
-            accumulations["total_spectra"] = ("x", "y")
+            accumulations.append(SumAndMax("total_spectra", axes=["x", "y"]))
         return accumulations
 
     @override
@@ -278,8 +262,6 @@ class ImzMLDataSource(AbstractDataSource):
         # )
 
         values = {"signal": np.concatenate(int_data)}
-        if self.is_centroid:
-            values["mz"] = mz_array
 
         return MultiCOO(
             coords=final_coords,
